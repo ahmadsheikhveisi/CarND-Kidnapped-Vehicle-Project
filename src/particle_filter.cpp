@@ -119,8 +119,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		vector <LandmarkObs> transformed_obs;
 		for (auto obs : observations)
 		{
-			obs.x = (cos(particle.theta) * obs.x) - (sin(particle.theta) * obs.y) + particle.x;
-			obs.y = (sin(particle.theta) * obs.x) + (cos(particle.theta) * obs.y) + particle.y;
+			double transformed_x = (cos(particle.theta) * obs.x) - (sin(particle.theta) * obs.y) + particle.x;
+			double transformed_y = (sin(particle.theta) * obs.x) + (cos(particle.theta) * obs.y) + particle.y;
+			obs.x = transformed_x;
+			obs.y = transformed_y;
 			transformed_obs.push_back(obs);
 		}
 
@@ -189,6 +191,7 @@ void ParticleFilter::resample() {
 	      beta -= weights[index];
 	      index = (index + 1) % num_particles;
 	    }
+	    particles[index].id = cnt;
 	    resampled_particles.push_back(particles[index]);
 	}
 	particles = resampled_particles;
