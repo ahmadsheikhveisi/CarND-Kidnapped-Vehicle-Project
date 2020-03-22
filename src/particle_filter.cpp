@@ -98,6 +98,7 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
 		{
 			if (dist(pred.x,pred.y,obs.x,obs.y) < min_dist)
 			{
+				min_dist = dist(pred.x,pred.y,obs.x,obs.y);
 				obs.id = pred.id;
 			}
 		}
@@ -135,17 +136,28 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		// Associate landmarks to observations
 		dataAssociation(particle_landmarks_inrange,transformed_obs);
+		vector<int> associated_obs;
+		vector<double> associated_x;
+		vector<double> associated_y;
+		for(auto obs : transformed_obs)
+		{
+			associated_obs.push_back(obs.id);
+			associated_x.push_back(obs.x);
+			associated_y.push_back(obs.y);
+		}
+		SetAssociations(particle,associated_obs,associated_x,associated_y);
 
 		// Update the weights of each particle using a mult-variate Gaussian distribution.
 
 		particle.weight = 1.0;
 		for (auto obs : transformed_obs)
 		{
-			//Map::single_landmark_s sn_lm = *std::find(begin(map_landmarks.landmark_list),end(map_landmarks.landmark_list),[](Map::single_landmark_s sn_lm){return (sn_lm.id_i == obs.id);});
-			Map::single_landmark_s sn_lm = map_landmarks.landmark_list[obs.id];
+			LandmarkObs sn_lm = *std::find_if(begin(particle_landmarks_inrange),end(particle_landmarks_inrange),
+					[=](const LandmarkObs& sn_lm){return (sn_lm.id == obs.id);});
+			//Map::single_landmark_s sn_lm = map_landmarks.landmark_list[obs.id];
 			particle.weight *= multiv_prob(std_landmark[0],std_landmark[1],
 					obs.x,obs.y,
-					sn_lm.x_f,sn_lm.y_f);
+					sn_lm.x,sn_lm.y);
 		}
 
 		w_sum += particle.weight;

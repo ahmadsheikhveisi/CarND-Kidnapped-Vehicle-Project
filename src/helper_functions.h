@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include "map.h"
+#include <iostream>
 
 // for portability of M_PI (Vis Studio, MinGW, etc.)
 #ifndef M_PI
@@ -252,7 +253,7 @@ inline double multiv_prob(double sig_x, double sig_y, double x_obs, double y_obs
         double mu_x, double mu_y) {
 // calculate normalization term
 double gauss_norm;
-gauss_norm = 1 / (2 * M_PI * sig_x * sig_y);
+gauss_norm = 1.0 / (2.0 * M_PI * sig_x * sig_y);
 
 // calculate exponent
 double exponent;
